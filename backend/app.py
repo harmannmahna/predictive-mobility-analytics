@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from analysis import (
@@ -8,7 +9,7 @@ from analysis import (
     get_top_routes,
     get_distance_distribution,
     get_surge_prediction,
-    analyze_weather_impact  # 1. Added the import here
+    analyze_weather_impact
 )
 
 app = Flask(__name__)
@@ -40,17 +41,17 @@ def distance():
 
 @app.route("/api/surge")
 def surge():
-    # Your model executes perfectly without arguments and outputs accuracy metrics + forecasts
     return jsonify(get_surge_prediction())
 
 @app.route("/api/weather-impact")
 def weather_impact():
-    # 2. Added the new endpoint for data enrichment metrics
     return jsonify(analyze_weather_impact())
 
 @app.route("/api/health")
 def health():
     return jsonify({"status": "ok"})
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+if __name__ == '__main__':
+    # Fallback execution if you run `python backend/app.py` locally
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
