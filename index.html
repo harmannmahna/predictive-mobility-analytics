@@ -3,44 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uber Executive Analytics Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <title>Advanced Analytics Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0f111a;
+            --bg-card: #161925;
+            --text-main: #e8eaf0;
+            --text-muted: #8b90a8;
+            --border: #2e3250;
+            --accent: #00b4d8;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 24px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        h1 { margin: 0; font-size: 24px; font-weight: 600; }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-ok { background: rgba(34, 197, 148, 0.15); color: #22c55e; }
+        .badge-error { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+
+        /* KPI Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        /* Charts Section Layout */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 24px;
+        }
+
+        .chart-card {
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            flex-grow: 1;
+            height: 260px;
+        }
+    </style>
 </head>
 <body>
+
     <header>
-        <h1>  Advanced Analytics Platform</h1>
-        
+        <h1>Advanced Mobility Analytics Dashboard</h1>
+        <div id="status-badge" class="badge badge-error">Connecting...</div>
     </header>
 
-    <main>
-        <section class="kpi-container">
-            <div class="kpi-card">
-                <h3>Total Booked Rides</h3>
-                <p id="stat-rides">Loading...</p>
-            </div>
-            <div class="kpi-card">
-                <h3>Total Distance Logged</h3>
-                <p id="stat-miles">Loading...</p>
-            </div>
-            <div class="kpi-card">
-                <h3>Average Ride Distance</h3>
-                <p id="stat-avg-miles">Loading...</p>
-            </div>
-        </section>
+    <div class="metrics-grid">
+        <div class="card">
+            <div class="card-title">Total Booked Rides</div>
+            <div id="total-rides" class="card-value">...</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Total Distance Logged</div>
+            <div id="total-miles" class="card-value">...</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Average Ride Distance</div>
+            <div id="avg-miles" class="card-value">...</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Average Duration</div>
+            <div id="avg-duration" class="card-value">...</div>
+        </div>
+        <div class="card">
+            <div class="card-title">ML Model Accuracy (R²)</div>
+            <div id="r2-score" class="card-value">...</div>
+        </div>
+    </div>
 
-        <section class="dashboard-grid">
-            <div class="chart-card">
-                <h3>🌧️ Standout Analysis: Weather Correlation Impact</h3>
+    <p id="ml-message" style="color: var(--text-muted); margin-bottom: 24px;"></p>
+
+    <div class="charts-container">
+        <div class="card chart-card">
+            <div class="card-title">📈 Predictive Analytics: 24-Hour ML Ride Forecast</div>
+            <div class="chart-wrapper">
+                <canvas id="surgeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card chart-card">
+            <div class="card-title">🌧️ Standout Analysis: Weather Correlation Impact</div>
+            <div class="chart-wrapper">
                 <canvas id="weatherChart"></canvas>
             </div>
-            
-            <div class="chart-card">
-                <h3>📈 Predictive Analytics: 24-Hour ML Ride Forecast</h3>
-                <div id="forecastChart"></div>
+        </div>
+
+        <div class="card chart-card">
+            <div class="card-title">🚗 Rides by Category</div>
+            <div class="chart-wrapper">
+                <canvas id="categoryChart"></canvas>
             </div>
-        </section>
-    </main>
+        </div>
+
+        <div class="card chart-card">
+            <div class="card-title">🎯 Rides by Purpose</div>
+            <div class="chart-wrapper">
+                <canvas id="purposeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card chart-card">
+            <div class="card-title">📅 Monthly Trends</div>
+            <div class="chart-wrapper">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card chart-card">
+            <div class="card-title">📏 Distance Distribution</div>
+            <div class="chart-wrapper">
+                <canvas id="distanceChart"></canvas>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
