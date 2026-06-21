@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uber Executive Analytics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>🚕 Uber Advanced Analytics Platform</h1>
+        <p>Google SWE 2027 Portfolio Project Portfolio Entry</p>
+    </header>
+
+    <main>
+        <section class="kpi-container">
+            <div class="kpi-card">
+                <h3>Total Booked Rides</h3>
+                <p id="stat-rides">Loading...</p>
+            </div>
+            <div class="kpi-card">
+                <h3>Total Distance Logged</h3>
+                <p id="stat-miles">Loading...</p>
+            </div>
+            <div class="kpi-card">
+                <h3>Average Ride Distance</h3>
+                <p id="stat-avg-miles">Loading...</p>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="chart-card">
+                <h3>🌧️ Standout Analysis: Weather Correlation Impact</h3>
+                <canvas id="weatherChart"></canvas>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📈 Predictive Analytics: 24-Hour ML Ride Forecast</h3>
+                <div id="forecastChart"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
