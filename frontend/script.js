@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:5000/api";
+const API = "https://predictive-mobility-analytics.onrender.com/api";
 
 const COLORS = {
   blue:   "#00b4d8",
