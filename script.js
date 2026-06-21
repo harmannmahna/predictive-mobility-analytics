@@ -186,3 +186,33 @@ async function loadRoutes() {
     `).join("");
   }
 }
+async function init() {
+  try {
+    await fetchJSON("/health");
+    setBadge(true);
+  } catch {
+    setBadge(false);
+    document.getElementById("ml-message").textContent = "⚠️ Backend not running.";
+    return;
+  }
+
+  // Wrap individual loaders so one small bug doesn't crash the whole UI
+  const loaders = [
+    { name: "Summary", fn: loadSummary },
+    { name: "Category", fn: loadCategory },
+    { name: "Purpose", fn: loadPurpose },
+    { name: "Monthly", fn: loadMonthly },
+    { name: "Distance", fn: loadDistance },
+    { name: "Surge", fn: loadSurge },
+    { name: "Routes", fn: loadRoutes },
+    { name: "Weather", fn: loadWeather }
+  ];
+
+  for (const loader of loaders) {
+    try {
+      await loader.fn();
+    } catch (err) {
+      console.warn(`Failed to load ${loader.name}:`, err);
+    }
+  }
+}
