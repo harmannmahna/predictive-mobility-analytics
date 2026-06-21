@@ -182,3 +182,7 @@ async function loadRoutes() {
         <td>${i + 1}</td>
         <td>${r.route || r.ROUTE}</td>
         <td>${r.count !== undefined ? r.count : r.COUNT}</td>
+      </tr>
+    `).join("");
+  }
+}
