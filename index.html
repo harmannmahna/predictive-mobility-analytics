@@ -43,7 +43,6 @@
         .badge-ok { background: rgba(34, 197, 148, 0.15); color: #22c55e; }
         .badge-error { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
 
-        /* KPI Metrics Grid */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -73,7 +72,6 @@
             color: var(--text-main);
         }
 
-        /* Charts Section Layout */
         .charts-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -169,7 +167,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
     <div class="card" style="margin-top: 24px; width: 100%; box-sizing: border-box;">
         <div class="card-title">📍 Top Project Analytics Transit Routes</div>
         <table style="width: 100%; border-collapse: collapse; margin-top: 12px; text-align: left; color: var(--text-main);">
@@ -180,9 +177,10 @@
                     <th style="padding: 8px;">Trips</th>
                 </tr>
             </thead>
-            <tbody id="routes-body">
-                </tbody>
+            <tbody id="routes-body"></tbody>
         </table>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

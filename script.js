@@ -1,4 +1,3 @@
-// Change http to https here:
 const API = "https://predictive-mobility-analytics.onrender.com/api";
 
 const COLORS = {
@@ -70,13 +69,11 @@ async function loadCategory() {
 
 async function loadPurpose() {
   const data = await fetchJSON("/purpose");
-  
-  // Clean keys dynamically to avoid case mismatch problems
   const labels = data.map(d => d.purpose || d.PURPOSE || "Unknown");
   const values = data.map(d => {
     if (d.count !== undefined) return d.count;
     if (d.COUNT !== undefined) return d.COUNT;
-    return 0; // Fallback value if no count is found
+    return 0;
   });
 
   new Chart(document.getElementById("purposeChart"), {
@@ -92,7 +89,7 @@ async function loadPurpose() {
     },
     options: { 
       ...chartDefaults, 
-      indexAxis: "y" // Flips to horizontal for readable category text layout
+      indexAxis: "y"
     }
   });
 }
@@ -151,7 +148,6 @@ async function loadDistance() {
 
 async function loadSurge() {
   const d = await fetchJSON("/surge");
-
   document.getElementById("r2-score").textContent = (d.r2_score * 100).toFixed(1) + "%";
   document.getElementById("ml-message").textContent = d.message;
 
@@ -186,6 +182,30 @@ async function loadRoutes() {
     `).join("");
   }
 }
+
+async function loadWeather() {
+  const response = await fetchJSON("/weather-impact");
+  new Chart(document.getElementById("weatherChart"), {
+    type: "bar",
+    data: {
+      labels: response.data.map(d => d.weather),
+      datasets: [{
+        label: "Avg Daily Rides",
+        data: response.data.map(d => d.avg_rides),
+        backgroundColor: [COLORS.amber, COLORS.blue, COLORS.purple],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        ...chartDefaults.plugins,
+        legend: { display: false }
+      }
+    }
+  });
+}
+
 async function init() {
   try {
     await fetchJSON("/health");
@@ -196,7 +216,6 @@ async function init() {
     return;
   }
 
-  // Wrap individual loaders so one small bug doesn't crash the whole UI
   const loaders = [
     { name: "Summary", fn: loadSummary },
     { name: "Category", fn: loadCategory },
@@ -216,3 +235,5 @@ async function init() {
     }
   }
 }
+
+init();
