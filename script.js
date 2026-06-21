@@ -42,8 +42,10 @@ async function fetchJSON(endpoint) {
 
 function setBadge(ok) {
   const el = document.getElementById("status-badge");
-  el.textContent = ok ? "API Connected" : "API Offline";
-  el.className   = "badge " + (ok ? "badge-ok" : "badge-error");
+  if (el) {
+    el.textContent = ok ? "API Connected" : "API Offline";
+    el.className   = "badge " + (ok ? "badge-ok" : "badge-error");
+  }
 }
 
 async function loadSummary() {
@@ -59,8 +61,8 @@ async function loadCategory() {
   new Chart(document.getElementById("categoryChart"), {
     type: "doughnut",
     data: {
-      labels:   data.map(d => d.category),
-      datasets: [{ data: data.map(d => d.count), backgroundColor: PALETTE, borderWidth: 0 }]
+      labels:   data.map(d => d.category || d.CATEGORY || "Unknown"),
+      datasets: [{ data: data.map(d => d.count !== undefined ? d.count : (d.COUNT || 0)), backgroundColor: PALETTE, borderWidth: 0 }]
     },
     options: { ...chartDefaults, scales: {} }
   });
@@ -68,13 +70,30 @@ async function loadCategory() {
 
 async function loadPurpose() {
   const data = await fetchJSON("/purpose");
+  
+  // Clean keys dynamically to avoid case mismatch problems
+  const labels = data.map(d => d.purpose || d.PURPOSE || "Unknown");
+  const values = data.map(d => {
+    if (d.count !== undefined) return d.count;
+    if (d.COUNT !== undefined) return d.COUNT;
+    return 0; // Fallback value if no count is found
+  });
+
   new Chart(document.getElementById("purposeChart"), {
     type: "bar",
     data: {
-      labels:   data.map(d => d.purpose),
-      datasets: [{ label: "Rides", data: data.map(d => d.count), backgroundColor: COLORS.blue, borderRadius: 4 }]
+      labels: labels,
+      datasets: [{ 
+        label: "Rides", 
+        data: values, 
+        backgroundColor: COLORS.blue, 
+        borderRadius: 4 
+      }]
     },
-    options: { ...chartDefaults, indexAxis: "y" }
+    options: { 
+      ...chartDefaults, 
+      indexAxis: "y" // Flips to horizontal for readable category text layout
+    }
   });
 }
 
@@ -83,11 +102,11 @@ async function loadMonthly() {
   new Chart(document.getElementById("monthlyChart"), {
     type: "line",
     data: {
-      labels: data.map(d => d.MONTH),
+      labels: data.map(d => d.MONTH || d.month),
       datasets: [
         {
           label: "Rides",
-          data: data.map(d => d.rides),
+          data: data.map(d => d.rides || d.RIDES || 0),
           borderColor: COLORS.blue,
           backgroundColor: "rgba(0,180,216,0.08)",
           fill: true,
@@ -97,7 +116,7 @@ async function loadMonthly() {
         },
         {
           label: "Miles",
-          data: data.map(d => d.total_miles),
+          data: data.map(d => d.total_miles || d.TOTAL_MILES || 0),
           borderColor: COLORS.purple,
           backgroundColor: "rgba(124,58,237,0.08)",
           fill: true,
@@ -123,8 +142,8 @@ async function loadDistance() {
   new Chart(document.getElementById("distanceChart"), {
     type: "bar",
     data: {
-      labels:   data.map(d => d.bucket),
-      datasets: [{ label: "Rides", data: data.map(d => d.count), backgroundColor: PALETTE, borderRadius: 4 }]
+      labels:   data.map(d => d.bucket || d.BUCKET),
+      datasets: [{ label: "Rides", data: data.map(d => d.count !== undefined ? d.count : (d.COUNT || 0)), backgroundColor: PALETTE, borderRadius: 4 }]
     },
     options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { display: false } } }
   });
@@ -157,59 +176,9 @@ async function loadSurge() {
 async function loadRoutes() {
   const data = await fetchJSON("/routes");
   const tbody = document.getElementById("routes-body");
-  tbody.innerHTML = data.map((r, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${r.route}</td>
-      <td>${r.count}</td>
-    </tr>
-  `).join("");
-}
-
-async function init() {
-  try {
-    await fetchJSON("/health");
-    setBadge(true);
-  } catch {
-    setBadge(false);
-    document.getElementById("ml-message").textContent = "⚠️ Backend not running. Start Flask with: python backend/app.py";
-    return;
-  }
-
-  await Promise.all([
-    loadSummary(),
-    loadCategory(),
-    loadPurpose(),
-    loadMonthly(),
-    loadDistance(),
-    loadSurge(),
-    loadRoutes(),
-    loadWeather()
-  ]);
-}
-async function loadWeather() {
-  const response = await fetchJSON("/weather-impact");
-  
-  // Create a stunning multi-colored bar chart matching your theme
-  new Chart(document.getElementById("weatherChart"), {
-    type: "bar",
-    data: {
-      labels: response.data.map(d => d.weather),
-      datasets: [{
-        label: "Avg Daily Rides",
-        data: response.data.map(d => d.avg_rides),
-        // Use your predefined theme colors: Clear/Sunny gets Amber, Overcast gets Blue, Rainy gets Purple
-        backgroundColor: [COLORS.amber, COLORS.blue, COLORS.purple],
-        borderRadius: 4
-      }]
-    },
-    options: {
-      ...chartDefaults,
-      plugins: {
-        ...chartDefaults.plugins,
-        legend: { display: false } // Hiding legend since the colors speak for themselves
-      }
-    }
-  });
-} 
-init();
+  if (tbody) {
+    tbody.innerHTML = data.map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${r.route || r.ROUTE}</td>
+        <td>${r.count !== undefined ? r.count : r.COUNT}</td>
